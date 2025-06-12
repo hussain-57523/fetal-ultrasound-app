@@ -1,46 +1,86 @@
 # app.py
+
 import streamlit as st
-import torch
-import numpy as np
-import cv2
 from PIL import Image
-from predict import load_model, preprocess_image
-from utils.gradcam_utils import generate_gradcam
-from model.custom_cnn import FetalNet
+import torch
 
-# --- Setup ---
-st.set_page_config(page_title="Fetal Plane Classifier", layout="centered")
+# Import your custom modules
+from model.fetalnet import FetalNet
+from utils.preprocess import transform_image
+from predict import make_prediction
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-weights_path = "model/trained_models/best_model.pth"
-model = load_model(weights_path, device)
+# Use caching to load the model only once
+@st.cache_resource
+def load_model():
+    """
+    Loads the trained FetalNet model from the saved .pth file.
+    """
+    # Instantiate the model architecture
+    # Ensure num_classes_model matches your trained model
+    model = FetalNet(num_classes_model=6) 
+    
+    # Path to your best model file
+    model_path = "model/trained_models/best_model.pth"
+    
+    # Load the state dictionary
+    # Use map_location to ensure it works on CPU if no GPU is available
+    model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
+    
+    # Set the model to evaluation mode
+    model.eval()
+    return model
 
-target_names = ["Abdomen", "Brain", "Femur", "Thorax", "Cervix", "Other"]
-st.title("🩺 Fetal Ultrasound Plane Classifier + Grad-CAM")
+# --- Main App Interface ---
 
-uploaded_file = st.file_uploader("Upload an Ultrasound Image", type=["jpg", "png", "jpeg"])
+# Load the model
+model = load_model()
 
-if uploaded_file:
-    st.image(uploaded_file, caption="Uploaded Image", use_column_width=True)
+# Set up the title and description
+st.title("Fetal Ultrasound Plane Classifier 🔬")
+st.write(
+    "Upload a fetal ultrasound image, and the model will predict its anatomical plane. "
+    "This model can identify Abdomen, Brain, Femur, Thorax, Maternal Cervix, or 'Other'."
+)
 
-    input_tensor = preprocess_image(uploaded_file).to(device)
+# File uploader
+uploaded_file = st.file_uploader("Choose an image...", type=["png", "jpg", "jpeg"])
 
-    with torch.no_grad():
-        output = model(input_tensor)
-        pred_class = output.argmax(dim=1).item()
-        pred_label = target_names[pred_class]
+if uploaded_file is not None:
+    # Display the uploaded image
+    image = Image.open(uploaded_file)
+    st.image(image, caption='Uploaded Image.', use_column_width=True)
+    st.write("")
 
-    st.success(f"Predicted Class: **{pred_label}**")
+    # When the user clicks the button, make a prediction
+    if st.button('Classify Plane'):
+        with st.spinner('Analyzing the image...'):
+            # 1. Preprocess the image
+            tensor = transform_image(uploaded_file)
+            
+            if tensor is not None:
+                # 2. Make a prediction
+                predicted_class, confidence, all_probs = make_prediction(model, tensor)
 
-    # Grad-CAM
-    st.subheader("🔥 Grad-CAM Explanation")
-    target_layer = model.conv[5]  # SE block is usually index 5
-    cam_image = generate_gradcam(model, input_tensor, target_layer, pred_class, device=device.type)
+                # 3. Display the result
+                st.success(f"**Predicted Plane: {predicted_class}**")
+                st.write(f"**Confidence:** {confidence:.2%}")
+                
+                # Optional: Display all class probabilities
+                st.write("---")
+                st.write("**All Class Probabilities:**")
+                for class_name, prob in all_probs.items():
+                    st.write(f"{class_name}: {prob:.2%}")
 
-    st.image(cam_image, caption="Grad-CAM Heatmap", use_column_width=True)
-    st.write("This heatmap highlights the regions of the image that contributed most to the classification decision.")
-    st.write("You can upload another image to see the classification and Grad-CAM results.")
-else:
-    st.info("Please upload an ultrasound image to classify and visualize with Grad-CAM.")
-    st.write("Supported formats: PNG")
-    st.write("The model will classify the image and provide a Grad-CAM visualization of the decision-making process.")
+            else:
+                st.error("Could not process the uploaded image. Please try another one.")
+
+# Add a sidebar with some information
+st.sidebar.header("About")
+st.sidebar.info(
+    "This app uses a FetalNet deep learning model (built with PyTorch) "
+    "to classify fetal ultrasound images. The model architecture uses a "
+    "pre-trained MobileNetV2 base with a custom head including a "
+    "Squeeze-and-Excitation (SE) block."
+)
+st.sidebar.header("Example Images")
+st.sidebar.write("Try uploading one of the sample images from the `examples` folder in the GitHub repo.")
