@@ -10,4 +10,4 @@ seaborn
 opencv-python
 scipy
 pytorch-grad-cam
-scikit-imageopencv-python 
+scikit-image
