@@ -1,13 +1,10 @@
-streamlit
-torch
-torchvision
-Pillow
-numpy
-pandas
-scikit-learn
-matplotlib
-seaborn
-opencv-python
-scipy
-pytorch-grad-cam
-scikit-image
+# requirements.txt
+
+streamlit==1.35.0
+torch==2.3.1
+torchvision==0.18.1
+numpy==1.26.4
+Pillow==10.3.0
+grad-cam==0.2.1
+opencv-python-headless==4.9.0.80
+matplotlib==3.8.0
