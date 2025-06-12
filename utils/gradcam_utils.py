@@ -1,3 +1,5 @@
+# utils/gradcam_utils.py
+
 import torch
 import numpy as np
 import matplotlib.pyplot as plt
@@ -6,10 +8,13 @@ from pytorch_grad_cam.utils.model_targets import ClassifierOutputTarget
 from pytorch_grad_cam.utils.image import show_cam_on_image
 
 def generate_gradcam_visualizations(model, dataset, target_layer, target_names, device, num_images=5):
-    cam = GradCAM(model=model, target_layers=[target_layer], use_cuda=(device.type == 'cuda'))
+    # ✅ FIXED: Removed use_cuda argument
+    cam = GradCAM(model=model, target_layers=[target_layer])
 
     for i in range(num_images):
         image_tensor, label_idx = dataset[i]
+
+        # Un-normalize for display
         unnormalized_img = image_tensor.numpy().transpose((1, 2, 0))
         mean = np.array([0.5, 0.5, 0.5])
         std = np.array([0.5, 0.5, 0.5])
@@ -17,6 +22,7 @@ def generate_gradcam_visualizations(model, dataset, target_layer, target_names, 
         unnormalized_img = np.clip(unnormalized_img, 0, 1)
 
         input_tensor = image_tensor.unsqueeze(0).to(device)
+
         with torch.no_grad():
             output = model(input_tensor)
             _, predicted_idx_tensor = torch.max(output, 1)
@@ -29,6 +35,7 @@ def generate_gradcam_visualizations(model, dataset, target_layer, target_names, 
 
         fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 5))
         fig.suptitle(f'Image #{i} | True: {target_names[label_idx]} | Pred: {target_names[predicted_idx]}', fontsize=14)
+        
         ax1.imshow(unnormalized_img)
         ax1.set_title('Original')
         ax1.axis('off')
