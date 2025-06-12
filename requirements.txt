@@ -7,3 +7,7 @@ pandas
 scikit-learn
 matplotlib
 seaborn
+opencv-python
+scipy
+pytorch-grad-cam
+scikit-imageopencv-python 
