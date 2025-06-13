@@ -48,7 +48,7 @@ uploaded_file = st.file_uploader("Choose an image...", type=["png", "jpg", "jpeg
 if uploaded_file is not None:
     # Display the uploaded image
     image = Image.open(uploaded_file)
-    st.image(image, caption='Uploaded Image.', use_column_width=True)
+    st.image(image, caption='Uploaded Image.', use_container_width=True)
     st.write("")
 
     # When the user clicks the button, make a prediction
@@ -83,4 +83,4 @@ st.sidebar.info(
     "Squeeze-and-Excitation (SE) block."
 )
 st.sidebar.header("Example Images")
-st.sidebar.write("Try uploading one of the sample images from the `examples` folder in the GitHub repo.")
+# st.sidebar.write("Try uploading one of the sample images from the `examples` folder in the GitHub repo.")

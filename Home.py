@@ -73,4 +73,6 @@ st.sidebar.info(
     "Squeeze-and-Excitation (SE) block, and was fine-tuned for high accuracy."
 )
 st.sidebar.markdown("---")
-st.sidebar.write("Created by: **[Your Name Here]**")
+st.sidebar.write("Created by: **[Hussain]**")
+# Placeholder for Grad-CAM explanation
+st.info("Explainable AI (Grad-CAM) visualization can be added here to show model focus.")
