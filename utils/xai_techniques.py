@@ -32,7 +32,7 @@ def generate_guided_backprop(model, device, input_tensor):
     try:
         pred_index = get_prediction_details(model, input_tensor)
         gb_model = GuidedBackpropReLUModel(model=model, device=device)
-        gradients = gb_model(input_tensor, target_category=pred_index)
+        gradients = gb_model(input_tensor
         gb_viz = np.transpose(gradients.squeeze(), (1, 2, 0))
         return (gb_viz - gb_viz.min()) / (gb_viz.max() - gb_viz.min() + 1e-9)
     except Exception as e:
