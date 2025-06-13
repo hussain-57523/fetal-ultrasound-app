@@ -1,10 +1,12 @@
-streamlit
-numpy
-pandas
+streamlit==1.35.0
+numpy==1.26.4
+pandas==2.2.2
+Pillow==10.3.0
 --find-links https://download.pytorch.org/whl/cpu/torch_stable.html
-torch
-torchvision
-grad-cam
-opencv-python-headless
-matplotlib
-seaborn
+torch==2.1.2
+torchvision==0.16.2
+matplotlib==3.8.4
+seaborn==0.13.2
+grad-cam==0.2.1
+opencv-python-headless==4.9.0.80
+captum==0.7.0

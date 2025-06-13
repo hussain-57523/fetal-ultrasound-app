@@ -56,7 +56,8 @@ def plot_detailed_confusion_matrix():
     ])
     
     group_totals = np.sum(cm_data, axis=1)
-    cm_percentages = cm_data / group_totals[:, np.newaxis]
+    # Handle division by zero for rows with no samples
+    cm_percentages = np.divide(cm_data, group_totals[:, np.newaxis], out=np.zeros_like(cm_data, dtype=float), where=group_totals[:, np.newaxis]!=0)
 
     labels = []
     for i in range(cm_data.shape[0]):
@@ -65,11 +66,13 @@ def plot_detailed_confusion_matrix():
             percentage = cm_percentages[i, j]
             count = cm_data[i, j]
             
+            # Format the label string
+            label_str = f"{percentage:.1%}\n{count}"
+            # Add total to diagonal
             if i == j:
                 label_str = f"{percentage:.1%}\n{count}/{group_totals[i]}"
-            else:
-                label_str = f"{percentage:.1%}\n{count}"
             
+            # Don't show text for zero-count cells
             if count == 0:
                 label_str = ""
             
