@@ -9,6 +9,7 @@ def plot_ablation_comparison_chart():
     """
     Generates the bar chart comparing all experimental results.
     """
+    # Data from your final analysis document
     experiment_results = {
         'Baseline': 91.77,
         'Fine-Tuned': 93.01,
@@ -16,42 +17,76 @@ def plot_ablation_comparison_chart():
         'No Conv2': 92.00,
         'AvgPool': 92.00
     }
+
     model_names = list(experiment_results.keys())
     accuracies = list(experiment_results.values())
+
     fig, ax = plt.subplots(figsize=(10, 6))
     colors = ['deepskyblue', 'limegreen', 'lightcoral', 'orange', 'purple']
     bars = ax.bar(model_names, accuracies, color=colors)
+    
     ax.set_ylabel('Test Accuracy (%)', fontsize=12)
     ax.set_title('Test Accuracy Comparison Across All Models', fontsize=16)
     ax.set_ylim(min(accuracies) - 1, max(accuracies) + 1)
+    
     for bar in bars:
         yval = bar.get_height()
         plt.text(bar.get_x() + bar.get_width()/2.0, yval, f'{yval:.2f}%', va='bottom', ha='center')
+
     plt.xticks(rotation=15)
     plt.grid(axis='y', linestyle='--', alpha=0.7)
     plt.tight_layout()
+    
     return fig
 
-def plot_confusion_matrix():
+def plot_detailed_confusion_matrix():
     """
-    Generates the confusion matrix heatmap for the best (fine-tuned) model.
+    Generates the detailed confusion matrix heatmap for the best (fine-tuned) model.
     """
-    class_names = ['Abdomen', 'Brain', 'Femur', 'Thorax', 'Cervix', 'Other']
+    class_names = ['ABD', 'BRAIN', 'CERVIX', 'FEMUR', 'OTHER', 'THORAX']
     # This is a representative matrix based on your reported 93.01% accuracy
     cm_data = np.array([
-        [84, 1, 3, 8, 0, 10],   # Abdomen
-        [1, 452, 1, 2, 0, 8],   # Brain
-        [2, 0, 130, 2, 0, 22],  # Femur
-        [4, 2, 1, 230, 0, 21],  # Thorax
-        [0, 0, 0, 0, 244, 0],   # Cervix
-        [5, 4, 10, 15, 0, 598]   # Other
+        # Predicted: ABD, BRAIN, CERVIX, FEMUR, OTHER, THORAX
+        [84,  1,   0,     3,     10,    8],     # Actual: Abdomen (106 total)
+        [1, 452,   1,     1,     8,     1],     # Actual: Brain (464 total)
+        [0,   1, 244,     0,     0,     0],     # Actual: Cervix (245 total)
+        [2,   0,   0,   130,     22,    2],     # Actual: Femur (156 total)
+        [5,   4,   0,    10,    598,    15],    # Actual: Other (632 total)
+        [4,   2,   1,     2,     21,    228]    # Actual: Thorax (258 total)
     ])
-    fig, ax = plt.subplots(figsize=(10, 8))
-    sns.heatmap(cm_data, annot=True, fmt='d', cmap='Blues',
-                xticklabels=class_names, yticklabels=class_names, ax=ax)
-    ax.set_xlabel('Predicted Label', fontsize=12)
-    ax.set_ylabel('True Label', fontsize=12)
-    ax.set_title('Confusion Matrix for Best Model (Fine-Tuned)', fontsize=16)
+    
+    group_totals = np.sum(cm_data, axis=1)
+    cm_percentages = cm_data / group_totals[:, np.newaxis]
+
+    labels = []
+    for i in range(cm_data.shape[0]):
+        row_labels = []
+        for j in range(cm_data.shape[1]):
+            percentage = cm_percentages[i, j]
+            count = cm_data[i, j]
+            
+            if i == j:
+                label_str = f"{percentage:.1%}\n{count}/{group_totals[i]}"
+            else:
+                label_str = f"{percentage:.1%}\n{count}"
+            
+            if count == 0:
+                label_str = ""
+            
+            row_labels.append(label_str)
+        labels.append(row_labels)
+    
+    labels = np.asarray(labels).reshape(cm_data.shape)
+
+    fig, ax = plt.subplots(figsize=(12, 10))
+    sns.heatmap(cm_percentages, annot=labels, fmt='s', cmap='Greens',
+                xticklabels=class_names, yticklabels=class_names, ax=ax, cbar=False)
+                
+    ax.set_xlabel('Predicted Label', fontsize=14, labelpad=20)
+    ax.set_ylabel('Actual Label', fontsize=14, labelpad=20)
+    ax.set_title('Detailed Confusion Matrix for Best Model (Fine-Tuned)', fontsize=18, pad=20)
+    plt.tight_layout()
+    
     return fig
 
 def plot_class_distribution():

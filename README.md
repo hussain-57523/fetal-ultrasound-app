@@ -50,5 +50,5 @@ The repository is organized as follows:
 - `/model`: Contains the `FetalNet` model architecture and the trained weights.
 - `/pages`: Contains the scripts for each page of the Streamlit dashboard.
 - `/utils`: Contains helper functions for preprocessing, prediction, and visualizations.
-- `🏠_Home.py`: The main script for the Streamlit application.
+- `Home.py`: The main script for the Streamlit application.
 - `requirements.txt`: The list of dependencies for Streamlit Cloud deployment.
