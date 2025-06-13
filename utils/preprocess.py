@@ -3,8 +3,8 @@
 from torchvision import transforms
 from PIL import Image
 
-# Define the image transformations. This should match your validation/test transform.
-transform = transforms.Compose([
+# Image transformations - must match what the model was trained with
+image_transform = transforms.Compose([
     transforms.Resize((224, 224)),
     transforms.ToTensor(),
     transforms.Normalize(
@@ -15,15 +15,13 @@ transform = transforms.Compose([
 
 def transform_image(image_bytes):
     """
-    Takes the bytes of an uploaded image, converts it to a PIL Image,
-    applies the necessary transformations, and returns a tensor
-    ready for the model.
+    Transforms image bytes into a model-ready tensor.
     """
     try:
-        # Open the image, convert to grayscale then to RGB to match training
-        image = Image.open(image_bytes).convert("L").convert("RGB")
+        # Open the image, ensure it's in RGB format
+        image = Image.open(image_bytes).convert("RGB")
         # Apply the transformations and add a batch dimension
-        return transform(image).unsqueeze(0)
+        return image_transform(image).unsqueeze(0)
     except Exception as e:
         print(f"Error transforming image: {e}")
         return None

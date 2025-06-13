@@ -5,7 +5,6 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torchvision import models
 
-# The SEBlock class is included here as it is a component of FetalNet.
 class SEBlock(nn.Module):
     def __init__(self, channels, reduction=8):
         super(SEBlock, self).__init__()
@@ -20,16 +19,12 @@ class SEBlock(nn.Module):
         y = torch.sigmoid(self.fc2(y)).view(b, c, 1, 1)
         return x * y
 
-# The FetalNet model class, exactly as defined during training.
 class FetalNet(nn.Module):
     def __init__(self, num_classes_model=6):
         super(FetalNet, self).__init__()
-        # We don't specify weights here for deployment; we will load them manually.
-        # This avoids re-downloading the base weights on the server.
+        # For deployment, we instantiate the model without pre-trained weights,
+        # as all necessary weights will be loaded from our trained .pth file.
         self.base = models.mobilenet_v2(weights=None).features
-        
-        # Load the state dict of the pre-trained base model manually if needed,
-        # but since we are loading our full trained model, this is handled.
         
         for param in self.base.parameters():
             param.requires_grad = False
