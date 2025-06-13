@@ -3,7 +3,7 @@
 import torch
 import numpy as np
 from PIL import Image
-from pytorch_grad_cam import GradCAM, GuidedBackpropReLUModel
+from pytorch_grad_cam import GradCAM, GuidedBackpropReLUModel, AblationCAM
 from pytorch_grad_cam.utils.model_targets import ClassifierOutputTarget
 from pytorch_grad_cam.utils.image import show_cam_on_image
 from captum.attr import IntegratedGradients, Occlusion
@@ -22,13 +22,11 @@ def get_prediction_details(model, input_tensor):
 def generate_grad_cam(model, input_tensor, original_image_pil):
     """Generates the Grad-CAM visualization."""
     try:
-        target_layer = [model.conv[5]] # Last Conv2D layer in the custom head
+        target_layer = [model.conv[5]]
         cam = GradCAM(model=model, target_layers=target_layer)
         pred_index = get_prediction_details(model, input_tensor)
         targets = [ClassifierOutputTarget(pred_index)]
-        
         grayscale_cam = cam(input_tensor=input_tensor, targets=targets)[0, :]
-        
         rgb_img_float = np.array(original_image_pil.resize((224, 224))) / 255.0
         visualization = show_cam_on_image(rgb_img_float, grayscale_cam, use_rgb=True)
         return visualization, CLASS_NAMES[pred_index]
@@ -41,6 +39,9 @@ def generate_guided_backprop(model, device, input_tensor):
     try:
         pred_index = get_prediction_details(model, input_tensor)
         gb_model = GuidedBackpropReLUModel(model=model, device=device)
+        
+        # --- THIS IS THE CORRECTED LINE ---
+        # It now includes the target_category and the closing parenthesis ')'.
         gradients = gb_model(input_tensor, target_category=pred_index)
         
         gb_viz = np.transpose(gradients.squeeze(), (1, 2, 0))
@@ -71,8 +72,6 @@ def generate_occlusion_sensitivity(model, device, input_tensor):
     try:
         pred_index = get_prediction_details(model, input_tensor)
         occlusion = Occlusion(model)
-        
-        # Occlusion works on CPU, ensure tensor is on CPU
         input_tensor_cpu = input_tensor.to('cpu')
         
         attribution_map = occlusion.attribute(input_tensor_cpu,
