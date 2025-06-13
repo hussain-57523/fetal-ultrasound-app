@@ -1,7 +1,8 @@
-streamlit==1.35.0
-torch==2.3.1
-torchvision==0.18.1
-numpy==1.26.4
-Pillow==10.3.0
-grad-cam==0.2.1
-opencv-python-headless==4.9.0.80
+# requirements.txt (Simplified Version)
+streamlit
+numpy
+Pillow
+torch
+torchvision
+grad-cam
+opencv-python-headless
