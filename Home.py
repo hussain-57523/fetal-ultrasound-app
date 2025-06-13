@@ -1,24 +1,16 @@
-# 🏠_Home.py (Temporary Debugging Version)
-
 import streamlit as st
 
-try:
-    from utils.xai_techniques import test_function
-    
-    st.title("Debugging XAI Import")
-    st.success("Successfully imported `test_function` from `utils/xai_techniques.py`.")
-    
-    result = test_function()
-    st.write(result)
-    
-except ImportError as e:
-    st.error(f"An ImportError occurred. This means the file path or __init__.py is likely the issue.")
-    st.error(f"Details: {e}")
+st.set_page_config(layout="wide")
+st.title("Ultimate Sanity Check ✅")
 
-except SyntaxError as e:
-    st.error(f"A SyntaxError occurred! This confirms the problem is a typo or error INSIDE the utils/xai_techniques.py file.")
-    st.error(f"Details: {e}")
+st.success("If you can see this message, then Streamlit and your basic configuration (runtime.txt, requirements.txt) are working correctly.")
 
-except Exception as e:
-    st.error(f"An unexpected error occurred during import.")
-    st.error(f"Details: {e}")
+st.info(
+    "This proves that the error is a SyntaxError or ImportError inside one of your project files, such as: \n"
+    "- `utils/visualizations.py`\n"
+    "- `utils/xai_techniques.py`\n"
+    "- `utils/prediction.py`\n"
+    "- `model/fetalnet.py`"
+)
+
+st.warning("Please now revert this file to its previous version and check the logs in 'Manage app' for the specific traceback.")
