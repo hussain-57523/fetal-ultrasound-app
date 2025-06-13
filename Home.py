@@ -1,124 +1,24 @@
+# 🏠_Home.py (Temporary Debugging Version)
+
 import streamlit as st
-from PIL import Image
-import torch
-import matplotlib.pyplot as plt
-import numpy as np
 
-# This block ensures all imports are coming from the correct 'utils' files
 try:
-    from model.fetalnet import FetalNet
-    from utils.preprocess import transform_image
-    from utils.prediction import make_prediction
-    from utils.xai_techniques import (
-        generate_grad_cam, 
-        generate_guided_backprop, 
-        generate_integrated_gradients, 
-        generate_occlusion_sensitivity
-    )
+    from utils.xai_techniques import test_function
+    
+    st.title("Debugging XAI Import")
+    st.success("Successfully imported `test_function` from `utils/xai_techniques.py`.")
+    
+    result = test_function()
+    st.write(result)
+    
 except ImportError as e:
-    st.error(f"Import Error: {e}. Please ensure your file structure is correct and all `__init__.py` files are in place.")
-    st.stop()
+    st.error(f"An ImportError occurred. This means the file path or __init__.py is likely the issue.")
+    st.error(f"Details: {e}")
 
-# Set up device
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+except SyntaxError as e:
+    st.error(f"A SyntaxError occurred! This confirms the problem is a typo or error INSIDE the utils/xai_techniques.py file.")
+    st.error(f"Details: {e}")
 
-@st.cache_resource
-def load_model():
-    """Loads the fine-tuned FetalNet model."""
-    model = FetalNet(num_classes_model=6).to(device)
-    model_path = "model/trained_models/fine_tuned_best_model.pth"
-    model.load_state_dict(torch.load(model_path, map_location=device))
-    model.eval()
-    return model
-
-# --- Main App Interface ---
-st.set_page_config(layout="wide")
-st.title("Fetal Ultrasound Plane Classifier with Explainable AI 🔬")
-st.markdown(
-    "Upload a fetal ultrasound image to classify its anatomical plane. After classification, "
-    "explore the **Explainable AI (XAI)** tabs to understand *why* the model made its decision."
-)
-
-model = load_model()
-
-if model is not None:
-    uploaded_file = st.file_uploader("Choose an ultrasound image...", type=["png", "jpg", "jpeg"])
-
-    if uploaded_file is not None:
-        original_image = Image.open(uploaded_file).convert("RGB")
-        
-        st.image(original_image, caption='Uploaded Image', use_column_width=True)
-        st.write("") 
-
-        if st.button('Classify Plane', type="primary", use_container_width=True):
-            with st.spinner('Analyzing the image...'):
-                tensor = transform_image(uploaded_file)
-                
-                if tensor is not None:
-                    tensor = tensor.to(device)
-                    predicted_class, confidence = make_prediction(model, tensor)
-
-                    st.success(f"**Predicted Plane: {predicted_class}**")
-                    st.write("**Confidence:**")
-                    st.progress(confidence, text=f"{confidence:.2%}")
-                    
-                    st.markdown("---")
-                    st.header("🤖 Explainable AI (XAI) Visualizations")
-                    st.write("Click on a tab below to generate an explanation for the prediction.")
-                    
-                    # --- XAI TABS SECTION ---
-                    tab1, tab2, tab3, tab4 = st.tabs([
-                        "Grad-CAM", "Guided Backpropagation", 
-                        "Integrated Gradients", "Occlusion Sensitivity"
-                    ])
-
-                    with tab1:
-                        st.info("This heatmap shows the general **regions** the model found important. **Red areas** are the most influential.")
-                        if st.button("Generate Grad-CAM", key="grad_cam_btn"):
-                            with st.spinner("Generating Grad-CAM..."):
-                                viz, pred_name = generate_grad_cam(model, tensor, original_image)
-                                if viz is not None:
-                                    st.image(viz, caption=f"Grad-CAM for prediction: '{pred_name}'", use_column_width=True)
-                                else:
-                                    st.error("Could not generate Grad-CAM.")
-
-                    with tab2:
-                        st.info("This highlights the specific **pixels and edges** that had a positive influence on the final decision.")
-                        if st.button("Generate Guided Backpropagation", key="gb_btn"):
-                            with st.spinner("Generating Guided Backpropagation..."):
-                                viz, pred_name = generate_guided_backprop(model, device, tensor)
-                                if viz is not None:
-                                    st.image(viz, caption=f"Guided Backprop for prediction: '{pred_name}'", use_column_width=True)
-                                else:
-                                    st.error("Could not generate Guided Backpropagation.")
-                            
-                    with tab3:
-                        st.info("This shows important pixels but is often **cleaner and less noisy**. It's great for identifying subtle features.")
-                        if st.button("Generate Integrated Gradients", key="ig_btn"):
-                            with st.spinner("Generating Integrated Gradients..."):
-                                viz, pred_name = generate_integrated_gradients(model, tensor)
-                                if viz is not None:
-                                    fig, ax = plt.subplots()
-                                    ax.imshow(viz, cmap='inferno')
-                                    ax.set_title(f"Integrated Gradients for '{pred_name}'")
-                                    ax.axis('off')
-                                    st.pyplot(fig)
-                                else:
-                                    st.error("Could not generate Integrated Gradients.")
-
-                    with tab4:
-                        st.info("This heatmap shows which regions are **critical**. Hiding a red area would significantly confuse the model. **Note: This is very slow.**")
-                        if st.button("Generate Occlusion Sensitivity (Slow)", key="occ_btn"):
-                            with st.spinner("Generating Occlusion Map (this can take up to a minute)..."):
-                                viz, pred_name = generate_occlusion_sensitivity(model, device, tensor)
-                                if viz is not None:
-                                    fig, ax = plt.subplots()
-                                    ax.imshow(original_image.resize((224, 224)), cmap='gray')
-                                    ax.imshow(viz, cmap='jet', alpha=0.5)
-                                    ax.set_title(f"Occlusion Sensitivity for '{pred_name}'")
-                                    ax.axis('off')
-                                    st.pyplot(fig)
-                                else:
-                                    st.error("Could not generate Occlusion Sensitivity map.")
-                else:
-                    st.error("Could not process the uploaded image.")
+except Exception as e:
+    st.error(f"An unexpected error occurred during import.")
+    st.error(f"Details: {e}")
