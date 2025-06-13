@@ -49,4 +49,4 @@ The core of this project is the `FetalNet` model, a custom deep learning archite
 st.markdown("---")
 st.header("Project Repository")
 st.info("The complete code, training notebooks, and project files are available on GitHub.")
-st.markdown("[Visit the GitHub Repository](https://github.com/Hussain-Innovator/fetal-ultrasound-xai-app.git)", unsafe_allow_html=True) # <-- CHANGE THIS LINK
+# st.markdown("[Visit the GitHub Repository](https://github.com/Hussain-Innovator/fetal-ultrasound-xai-app.git)", unsafe_allow_html=True) # <-- CHANGE THIS LINK
