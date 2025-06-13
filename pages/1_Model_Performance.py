@@ -1,4 +1,4 @@
-# pages/1_📊_Model_Performance.py
+# pages/1__Model_Performance.py
 
 import streamlit as st
 import pandas as pd
@@ -6,7 +6,7 @@ from utils.visualizations import plot_confusion_matrix
 
 st.set_page_config(page_title="Model Performance", layout="wide")
 
-st.title("📊 Final Model Performance")
+st.title("Final Model Performance")
 st.markdown("This page details the performance of the **best fine-tuned model** on the unseen test set.")
 
 st.markdown("---")
