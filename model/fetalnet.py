@@ -1,5 +1,3 @@
-# model/fetalnet.py
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -22,30 +20,19 @@ class SEBlock(nn.Module):
 class FetalNet(nn.Module):
     def __init__(self, num_classes_model=6):
         super(FetalNet, self).__init__()
-        # For deployment, we instantiate the model without pre-trained weights,
-        # as all necessary weights will be loaded from our trained .pth file.
         self.base = models.mobilenet_v2(weights=None).features
-        
         for param in self.base.parameters():
             param.requires_grad = False
-
         self.conv = nn.Sequential(
             nn.Conv2d(1280, 256, kernel_size=3, padding=1),
-            nn.BatchNorm2d(256),
-            nn.ReLU(),
-            nn.MaxPool2d(2),
+            nn.BatchNorm2d(256), nn.ReLU(), nn.MaxPool2d(2),
             SEBlock(256),
             nn.Conv2d(256, 128, kernel_size=3, padding=1),
-            nn.BatchNorm2d(128),
-            nn.ReLU(),
-            nn.AdaptiveAvgPool2d(1)
+            nn.BatchNorm2d(128), nn.ReLU(), nn.AdaptiveAvgPool2d(1)
         )
         self.classifier = nn.Sequential(
-            nn.Flatten(),
-            nn.Linear(128, 128),
-            nn.ReLU(),
-            nn.Dropout(0.5),
-            nn.Linear(128, num_classes_model)
+            nn.Flatten(), nn.Linear(128, 128), nn.ReLU(),
+            nn.Dropout(0.5), nn.Linear(128, num_classes_model)
         )
 
     def forward(self, x):
