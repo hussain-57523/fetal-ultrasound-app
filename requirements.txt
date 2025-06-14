@@ -1,16 +1,1 @@
-# This file specifies stable versions and the correct source for PyTorch on CPU
-
-streamlit==1.35.0
-numpy==1.26.4
-pandas==2.2.2
-Pillow==10.3.0
-matplotlib==3.8.4
-seaborn==0.13.2
-opencv-python-headless==4.9.0.80
-grad-cam==0.2.1
-captum==0.7.0
-
-# This next line tells pip where to find CPU-specific versions of PyTorch
---find-links https://download.pytorch.org/whl/cpu/torch_stable.html
-torch==2.1.2
-torchvision==0.16.2
+streamlit
