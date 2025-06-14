@@ -1,16 +1,13 @@
-# Final, stable requirements for Python 3.9 deployment
+# Final stable configuration for Python 3.10
 
 streamlit==1.33.0
-numpy==1.24.4
-pandas==2.0.3
+numpy==1.26.4
+pandas==2.1.4
 Pillow==10.1.0
 matplotlib==3.8.2
 seaborn==0.13.2
 opencv-python-headless==4.8.1.78
-grad-cam==0.2.1
 captum==0.7.0
-
-# This section tells pip where to find the correct CPU-only PyTorch
---find-links https://download.pytorch.org/whl/cpu/torch_stable.html
-torch==1.13.1+cpu
-torchvision==0.14.1+cpu
+grad-cam==0.2.1
+torch==2.2.1
+torchvision==0.17.1
