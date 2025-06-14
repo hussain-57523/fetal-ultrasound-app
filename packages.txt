@@ -1,3 +1,2 @@
-# packages.txt
 ffmpeg
 libgl1-mesa-glx
