@@ -1,9 +1,1 @@
-# Barebones requirements file for debugging
-numpy==1.24.4
-Pillow==10.1.0
 streamlit==1.33.0
-
-# Explicitly point to the stable CPU-only PyTorch wheels
---find-links https://download.pytorch.org/whl/cpu/torch_stable.html
-torch==2.1.2+cpu
-torchvision==0.16.2+cpu
