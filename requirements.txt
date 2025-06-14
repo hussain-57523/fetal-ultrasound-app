@@ -1,15 +1,16 @@
-# Final attempt: Let pip resolve most versions
-streamlit==1.33.0
-numpy
-pandas
-Pillow
-matplotlib
-seaborn
-opencv-python-headless
-grad-cam
-captum
+# Final, stable requirements for Python 3.9 deployment
 
-# Still provide the specific source for CPU-based PyTorch
+streamlit==1.33.0
+numpy==1.24.4
+pandas==2.0.3
+Pillow==10.1.0
+matplotlib==3.8.2
+seaborn==0.13.2
+opencv-python-headless==4.8.1.78
+grad-cam==0.2.1
+captum==0.7.0
+
+# This section tells pip where to find the correct CPU-only PyTorch
 --find-links https://download.pytorch.org/whl/cpu/torch_stable.html
-torch
-torchvision
+torch==1.13.1+cpu
+torchvision==0.14.1+cpu

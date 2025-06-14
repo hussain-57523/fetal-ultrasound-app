@@ -27,7 +27,7 @@ def load_model():
     """Loads the fine-tuned FetalNet model."""
     try:
         model = FetalNet(num_classes_model=6).to(device)
-        model_path = "model/trained_models/fine_tuned_best_model.pth"
+        model_path = "model/trained_models/best_model.pth"
         model.load_state_dict(torch.load(model_path, map_location=device))
         model.eval()
         return model
