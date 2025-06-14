@@ -1,16 +1,4 @@
-# Final, stable requirements for Streamlit Cloud deployment
-
-streamlit==1.33.0
-numpy==1.24.4
-pandas==2.0.3
-Pillow==10.1.0
-matplotlib==3.8.2
-seaborn==0.13.2
-opencv-python-headless==4.8.1.78
-grad-cam==0.2.1
-captum==0.7.0
-
-# This section tells pip where to find the correct CPU-only PyTorch
+# Final debugging test: Install ONLY PyTorch
 --find-links https://download.pytorch.org/whl/cpu/torch_stable.html
 torch==2.1.2+cpu
 torchvision==0.16.2+cpu
