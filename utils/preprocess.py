@@ -3,6 +3,7 @@
 import torchvision.transforms as transforms
 from PIL import Image
 import torch
+from utils.preprocess import preprocess_image
 
 # Define the transformation used for the test image
 transform = transforms.Compose([
