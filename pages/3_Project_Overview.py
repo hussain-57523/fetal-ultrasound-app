@@ -1,52 +1,75 @@
-# pages/3_Project_Overview.py
-
 import streamlit as st
+import os
+# Import the visualization function we created earlier
 from utils.visualizations import plot_class_distribution
 
 st.set_page_config(page_title="Project Overview", layout="wide")
 
-st.title("Project Overview")
+st.title("📖 Project Overview")
+st.markdown("""
+Welcome to **FetalNet** – a deep learning system for classifying standard fetal ultrasound planes using a custom architecture and Explainable AI (XAI). This project demonstrates an end-to-end workflow from data preprocessing to final deployment.
+""")
 
 st.markdown("---")
 
-# --- Problem Statement ---
-st.header("Problem Statement and Objective")
+# --- Project Objectives ---
+st.header("🎯 Project Objectives")
 st.markdown("""
-The accurate identification of standard anatomical planes in fetal ultrasound scans is a critical but time-consuming task for sonographers. It is essential for diagnosing fetal abnormalities and monitoring growth. Misidentification can lead to missed diagnoses or unnecessary follow-ups.
-
-**The objective of this project was to develop and evaluate a deep learning model, `FetalNet`, capable of automatically and accurately classifying fetal ultrasound images into six key anatomical planes.** This tool aims to assist medical professionals by improving efficiency and consistency in diagnoses.
+- **Automate** the classification of fetal ultrasound images into key standard views to assist sonographers.
+- **Design** a lightweight yet accurate custom CNN architecture (`FetalNet`).
+- **Validate** the architectural design through systematic fine-tuning and ablation studies.
+- **Build Trust** in the model’s predictions by implementing multiple Explainable AI techniques.
 """)
-
-
-st.markdown("---")
-
-# --- Dataset Information ---
-st.header("Dataset Overview")
-st.markdown("""
-The model was trained on the publicly available **FETAL_PLANES_DB** dataset. This dataset contains thousands of ultrasound images curated and labeled by medical experts. For this project, the data was split into training (70%), validation (15%), and testing (15%) sets.
-""")
-st.pyplot(plot_class_distribution())
-st.info("The chart above shows the number of images for each of the 6 classes in the test set, highlighting a notable class imbalance that the model must handle.")
-
 
 st.markdown("---")
 
 # --- Model Architecture ---
-st.header("FetalNet Model Architecture")
+st.header("🏗️ FetalNet Architecture Summary")
+
+# Show model architecture diagram
+# Make sure you have this image saved in your 'assets' folder
+arch_path = os.path.join("assets", "model_architecture_diagram.png")
+if os.path.exists(arch_path):
+    st.image(arch_path, caption="The FetalNet architecture combines a pre-trained base with a custom head.", use_column_width=True)
+else:
+    st.warning("Architecture diagram not found at 'assets/model_architecture_diagram.png'")
+
 st.markdown("""
-The core of this project is the `FetalNet` model, a custom deep learning architecture designed for this specific task.
-1.  **Backbone (Feature Extractor):** It uses a **MobileNetV2** model, pre-trained on the ImageNet dataset, as its backbone. The layers of this backbone were **frozen**, allowing us to leverage powerful, general-purpose features without the need for extensive training.
-2.  **Custom CNN Head:** On top of the backbone, I added two custom convolutional stages to refine the features specifically for the ultrasound domain.
-3.  **Squeeze-and-Excitation (SE) Block:** An attention mechanism was included between the custom convolutional stages. The SE Block helps the model learn to focus on the most important channel-wise features, which is crucial for dealing with the noise and variability in ultrasound images.
-4.  **Classifier:** A final classifier with a `Dropout` layer takes these refined features and makes the final prediction.
-
-*(You could display a diagram of your architecture here if you have one)*
+- **Base Model:** A pre-trained **MobileNetV2**, with its layers frozen to act as a powerful feature extractor.
+- **Attention Mechanism:** A **Squeeze-and-Excitation (SE) Block** was integrated to help the model focus on the most relevant feature channels.
+- **Classifier Head:** A custom 2-layer classifier with a `Dropout` layer for regularization makes the final prediction.
 """)
-# Example of how to show an image from the assets folder:
-# st.image("assets/model_architecture_diagram.png", caption="FetalNet Architecture Diagram")
+
+st.markdown("---")
+
+# --- Dataset Information ---
+st.header("📦 Dataset: FETAL_PLANES_DB")
+st.markdown("""
+The model was trained on a publicly available dataset from Zenodo, containing thousands of labeled ultrasound images.
+
+- **Data Split:** The dataset was divided into Training (70%), Validation (15%), and Testing (15%) sets.
+- **Number of Classes:** 6
+- **Class Labels:**
+    - Fetal abdomen
+    - Fetal brain
+    - Fetal femur
+    - Fetal thorax
+    - Maternal cervix
+    - Other
+""")
+
+# --- Display the Class Distribution Chart Dynamically ---
+st.subheader("Class Distribution (Test Set)")
+st.markdown("The chart below shows the number of images per class in the test set, highlighting the class imbalance.")
+# This calls the function from your visualizations utility file
+fig = plot_class_distribution()
+st.pyplot(fig)
 
 
-# st.markdown("---")
-# st.header("Project Repository")
-# st.info("The complete code, training notebooks, and project files are available on GitHub.")
-# # st.markdown("[Visit the GitHub Repository](https://github.com/Hussain-Innovator/fetal-ultrasound-xai-app.git)", unsafe_allow_html=True) # <-- CHANGE THIS LINK
+st.markdown("---")
+# --- Performance Summary ---
+st.header("🔍 Final Performance Summary")
+st.success(
+    "After a two-phase training process (initial training + fine-tuning), the final model achieved a **Test Accuracy of 93.01%**  "
+    "and a **Weighted F1-Score of 0.93**. The ablation study further validated the importance of the final model's design."
+)
