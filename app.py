@@ -34,7 +34,7 @@ def load_model():
         # Load the saved weights into the model structure
         model.load_state_dict(torch.load(model_path, map_location=device))
         model.eval() # Set the model to evaluation mode
-        print("✅ Model loaded successfully.")
+        print("Model loaded successfully.")
         return model, device
     except FileNotFoundError:
         st.error(f"Model file not found at '{model_path}'. Please ensure the model file is present in your repository.")
@@ -46,7 +46,7 @@ def load_model():
 # --- 3. Main App Interface ---
 st.set_page_config(page_title="Fetal Ultrasound Classification", layout="wide")
 
-st.title("🧠 Fetal Ultrasound Plane Classifier")
+st.title("Fetal Ultrasound Plane Classifier")
 st.markdown("Upload a fetal ultrasound image to classify it into its anatomical plane and see an explanation of the model's decision.")
 
 # Load the model when the app starts
@@ -63,7 +63,7 @@ if model is not None:
         st.image(original_image, caption="Uploaded Image", use_column_width=True)
 
         # A primary button to trigger the analysis
-        if st.button("🔍 Classify and Explain", type="primary", use_container_width=True):
+        if st.button("lassify and Explain", type="primary", use_container_width=True):
             with st.spinner("Analyzing image..."):
                 # Preprocess the image to get a tensor
                 input_tensor = transform_image(original_image)
@@ -78,7 +78,7 @@ if model is not None:
                     st.markdown("---")
 
                     # --- Explainable AI Section ---
-                    st.subheader("🤖 Explainable AI (XAI) Visualization")
+                    st.subheader("Explainable AI (XAI) Visualization")
                     with st.expander("See how the model made its decision"):
                         st.info("The heatmap below (Grad-CAM) highlights the regions in the image that were most important for the model's prediction. **Red areas** were the most influential.")
                         
