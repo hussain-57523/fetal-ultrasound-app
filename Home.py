@@ -64,7 +64,7 @@ if model is not None:
                     st.progress(confidence, text=f"Confidence: {confidence:.2%}")
                     
                     st.markdown("---")
-                    st.header("🤖 Explainable AI (XAI) Visualizations")
+                    st.header("xplainable AI (XAI) Visualizations")
                     st.write("Click a button in each tab to generate an explanation.")
                     
                     tab1, tab2, tab3, tab4 = st.tabs(["Grad-CAM", "Guided Backprop", "Integrated Gradients", "Occlusion Sensitivity"])
