@@ -28,7 +28,7 @@ def load_model():
     model = FetalNet(num_classes_model=6).to(device)
     
     # Path to your best model file
-    model_path = "model/trained_models/fine_tuned_best_model.pth"
+    model_path = "model/trained_models/best_model.pth"
     
     try:
         # Load the saved weights into the model structure

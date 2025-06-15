@@ -6,7 +6,7 @@ Pillow==10.1.0
 matplotlib==3.8.2
 seaborn==0.13.2
 opencv-python-headless==4.8.1.78
-torch==2.2.1
-torchvision==0.17.1
+torch==2.0.1
+torchvision==0.15.2
 captum==0.7.0
 grad-cam==0.2.1
