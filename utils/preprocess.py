@@ -1,8 +1,8 @@
-from torchvision import transforms
+import torchvision.transforms as transforms
 from PIL import Image
 import torch
 
-# This transformation pipeline MUST match what was used during training
+# This is the correct transformation pipeline from your training notebook
 image_transform = transforms.Compose([
     transforms.Resize((224, 224)),
     transforms.ToTensor(),
@@ -12,9 +12,11 @@ image_transform = transforms.Compose([
     )
 ])
 
-def preprocess_image(image: Image.Image) -> torch.Tensor:
+# The function is now correctly named 'transform_image'
+def transform_image(image: Image.Image) -> torch.Tensor:
     """
-    Preprocesses an input PIL image and returns a tensor ready for the model.
+    Preprocesses the input PIL image and returns a tensor ready for model input.
     """
+    # The self-import line has been removed.
     image_rgb = image.convert("RGB")
-    return image_transform(image_rgb).unsqueeze(0) # Add batch dimension
+    return image_transform(image_rgb).unsqueeze(0)  # Add batch dimension
