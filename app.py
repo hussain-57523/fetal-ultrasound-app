@@ -13,18 +13,39 @@ except ImportError as e:
     st.stop()
 
 # --- Cached Model Loading ---
+# In your app.py or Home.py file
+
 @st.cache_resource
 def load_model():
-    """Loads the fine-tuned FetalNet model."""
+    """
+    Loads the fine-tuned FetalNet model from the saved .pth file.
+    """
     device = torch.device("cpu")
     model = FetalNet(num_classes_model=6).to(device)
     model_path = "model/trained_models/best_model.pth"
+    
     try:
-        model.load_state_dict(torch.load(model_path, map_location=device))
+        # Load the file using the older method by setting weights_only=False
+        # This is necessary for models saved with earlier PyTorch versions.
+        # The 'weights_only' parameter was added in PyTorch 2.6
+        loaded_data = torch.load(model_path, map_location=device, weights_only=False)
+        
+        # Check if the loaded data is a dictionary (from a checkpoint) or just the state_dict
+        if isinstance(loaded_data, dict) and 'model_state_dict' in loaded_data:
+            model.load_state_dict(loaded_data['model_state_dict'])
+        else:
+            # Assumes the file contains only the state_dict
+            model.load_state_dict(loaded_data)
+            
         model.eval()
+        print("✅ Model loaded successfully.")
         return model, device
+        
     except FileNotFoundError:
         st.error(f"Model file not found at '{model_path}'.")
+        return None, None
+    except Exception as e:
+        st.error(f"An error occurred while loading the model: {e}")
         return None, None
 
 # --- Main App Interface ---
