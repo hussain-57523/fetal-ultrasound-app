@@ -1,4 +1,4 @@
-# Final stable configuration for Streamlit deployment on Python 3.10
+# Final stable configuration for Streamlit Cloud deployment (Python 3.10)
 streamlit==1.33.0
 numpy==1.26.4
 pandas==2.1.4
@@ -9,6 +9,8 @@ opencv-python-headless==4.8.1.78
 torch==2.2.1
 torchvision==0.17.1
 captum==0.7.0
+scikit-learn==1.4.2
+
 # We are using Captum's LayerGradCam, so pytorch-grad-cam is not needed
 
 # streamlit==1.33.0
