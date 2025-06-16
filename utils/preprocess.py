@@ -1,20 +1,20 @@
-# utils/preprocess.py
-
-import torchvision.transforms as transforms
+from torchvision import transforms
 from PIL import Image
 import torch
-from utils.preprocess import preprocess_image
 
-# Define the transformation used for the test image
-transform = transforms.Compose([
+# This transformation pipeline MUST match what was used during training
+image_transform = transforms.Compose([
     transforms.Resize((224, 224)),
     transforms.ToTensor(),
-    transforms.Normalize(mean=[0.485, 0.456, 0.406],  # Standard ImageNet normalization
-                         std=[0.229, 0.224, 0.225])
+    transforms.Normalize(
+        mean=[0.5, 0.5, 0.5],
+        std=[0.5, 0.5, 0.5]
+    )
 ])
 
 def preprocess_image(image: Image.Image) -> torch.Tensor:
     """
-    Preprocesses the input PIL image and returns a tensor ready for model input.
+    Preprocesses an input PIL image and returns a tensor ready for the model.
     """
-    return transform(image).unsqueeze(0)  # Add batch dimension
+    image_rgb = image.convert("RGB")
+    return image_transform(image_rgb).unsqueeze(0) # Add batch dimension

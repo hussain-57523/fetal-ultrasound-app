@@ -1,95 +1,63 @@
 import streamlit as st
 from PIL import Image
 import torch
-import os
 
-# --- 1. Import from your custom utility files ---
-# This structure assumes your utility functions are well-defined.
+# --- Import all custom modules ---
 try:
     from model.fetalnet import FetalNet
-    from utils.preprocess import transform_image
+    from utils.preprocess import preprocess_image
     from utils.prediction import make_prediction
-    from utils.xai_techniques import generate_grad_cam # We will focus on Grad-CAM for the main UI
+    from utils.xai_techniques import generate_gradcam_figure
 except ImportError as e:
-    st.error(f"Import Error: {e}. Please ensure all utility and model files are in place and correct.")
+    st.error(f"Import Error: {e}. Please check file structure and __init__.py files.")
     st.stop()
 
-# --- 2. Function to load the model (cached for performance) ---
+# --- Cached Model Loading ---
 @st.cache_resource
 def load_model():
-    """
-    Loads the fine-tuned FetalNet model from the saved .pth file.
-    This function runs only once.
-    """
-    # Set device to CPU for broad compatibility in deployment
     device = torch.device("cpu")
-    
-    # Instantiate the model architecture with the CORRECT number of classes
     model = FetalNet(num_classes_model=6).to(device)
-    
-    # Path to your best model file
     model_path = "model/trained_models/best_model.pth"
-    
     try:
-        # Load the saved weights into the model structure
         model.load_state_dict(torch.load(model_path, map_location=device))
-        model.eval() # Set the model to evaluation mode
-        print("Model loaded successfully.")
+        model.eval()
         return model, device
     except FileNotFoundError:
-        st.error(f"Model file not found at '{model_path}'. Please ensure the model file is present in your repository.")
-        return None, None
-    except Exception as e:
-        st.error(f"An error occurred while loading the model: {e}")
+        st.error(f"Model file not found at '{model_path}'.")
         return None, None
 
-# --- 3. Main App Interface ---
-st.set_page_config(page_title="Fetal Ultrasound Classification", layout="wide")
+# --- Main App Interface ---
+st.set_page_config(page_title="Fetal Ultrasound Classifier", layout="centered")
+st.title("Fetal Ultrasound Plane Classifier 🔬")
 
-st.title("Fetal Ultrasound Plane Classifier")
-st.markdown("Upload a fetal ultrasound image to classify it into its anatomical plane and see an explanation of the model's decision.")
-
-# Load the model when the app starts
 model, device = load_model()
 
-# Only proceed if the model was loaded successfully
-if model is not None:
-    # Use the main area for file upload for a better user flow
-    uploaded_file = st.file_uploader("📤 Upload an Image", type=["jpg", "jpeg", "png"])
+if model:
+    uploaded_file = st.file_uploader("Upload an Ultrasound Image", type=["jpg", "jpeg", "png"])
 
-    if uploaded_file is not None:
-        # Display the uploaded image
-        original_image = Image.open(uploaded_file).convert("RGB")   
-        st.image(original_image, caption="Uploaded Image", use_column_width=True)
+    if uploaded_file:
+        image = Image.open(uploaded_file).convert("RGB")
+        st.image(image, caption="Uploaded Image", use_column_width=True)
 
-        # A primary button to trigger the analysis
-        if st.button("lassify and Explain", type="primary", use_container_width=True):
-            with st.spinner("Analyzing image..."):
-                # Preprocess the image to get a tensor
-                input_tensor = transform_image(original_image)
-                
+        if st.button("Classify and Explain", type="primary", use_container_width=True):
+            with st.spinner("Analyzing..."):
+                input_tensor = preprocess_image(image)
                 if input_tensor is not None:
                     input_tensor = input_tensor.to(device)
                     
-                    # --- Prediction ---
-                    predicted_class, confidence, _ = make_prediction(model, input_tensor)
+                    predicted_class, confidence, all_probs = make_prediction(model, input_tensor)
+                    
                     st.success(f"**Predicted Plane:** {predicted_class}")
                     st.progress(confidence, text=f"Confidence: {confidence:.2%}")
-                    st.markdown("---")
-
-                    # --- Explainable AI Section ---
-                    st.subheader("Explainable AI (XAI) Visualization")
-                    with st.expander("See how the model made its decision"):
-                        st.info("The heatmap below (Grad-CAM) highlights the regions in the image that were most important for the model's prediction. **Red areas** were the most influential.")
+                    
+                    with st.expander("Show Detailed Probabilities"):
+                        st.dataframe(all_probs.items(), column_config={"0": "Class", "1": "Confidence"}, hide_index=True)
                         
-                        # Generate the Grad-CAM visualization
-                        gradcam_viz, _ = generate_grad_cam(model, input_tensor, original_image)
-                        
-                        if gradcam_viz is not None:
-                            st.image(gradcam_viz, caption="Grad-CAM: Model's Focus Heatmap", use_column_width=True)
-                        else:
-                            st.error("Could not generate XAI visualization for this image.")
+                    with st.expander("Show Model Explanation (XAI)"):
+                        st.info("The heatmap below shows the regions the model focused on to make its decision. Brighter areas were more important.")
+                        gradcam_fig = generate_gradcam_figure(model, input_tensor, image)
+                        st.pyplot(gradcam_fig, use_container_width=True)
                 else:
-                    st.error("There was an error preprocessing the image.")
+                    st.error("Could not preprocess the image.")
 else:
-    st.error("The model could not be loaded. The application cannot run.")
+    st.error("Model could not be loaded. The application cannot run.")
