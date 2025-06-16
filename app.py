@@ -15,6 +15,8 @@ except ImportError as e:
 # --- Cached Model Loading ---
 # In your app.py or Home.py file
 
+# In your app.py or Home.py file
+
 @st.cache_resource
 def load_model():
     """
@@ -25,20 +27,21 @@ def load_model():
     model_path = "model/trained_models/best_model.pth"
     
     try:
-        # Load the file using the older method by setting weights_only=False
-        # This is necessary for models saved with earlier PyTorch versions.
-        # The 'weights_only' parameter was added in PyTorch 2.6
+        # === THE FIX IS HERE: Add weights_only=False ===
+        # This tells the new version of PyTorch to load the file using
+        # the older, more flexible method, which is required for your model file.
         loaded_data = torch.load(model_path, map_location=device, weights_only=False)
+        # ========================================================
         
-        # Check if the loaded data is a dictionary (from a checkpoint) or just the state_dict
+        # Check if the loaded data is a full checkpoint dictionary or just the weights
         if isinstance(loaded_data, dict) and 'model_state_dict' in loaded_data:
             model.load_state_dict(loaded_data['model_state_dict'])
         else:
-            # Assumes the file contains only the state_dict
+            # Assumes the file contains only the weights (state_dict)
             model.load_state_dict(loaded_data)
             
         model.eval()
-        print("✅ Model loaded successfully.")
+        print("Model loaded successfully.")
         return model, device
         
     except FileNotFoundError:
